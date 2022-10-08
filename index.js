@@ -1,10 +1,10 @@
-import dotenv from 'dotenv'
-import express from "express";
-import cors from 'cors'
-import path from 'path'
+import dotenv            from 'dotenv'
+import express           from "express";
+import cors              from 'cors'
+import path              from 'path'
 import { fileURLToPath } from 'url';
-// import  history from 'connect-history-api-fallback'
-// import invoice from './routes/invoice.js'
+// import  history          from 'connect-history-api-fallback'
+import invoice from './routes/invoice.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +22,6 @@ app.use('/', express.static('dist'))
 app.use('/storage', express.static(__dirname + '/storage'))
 
 // routes
-// app.use('/invoice', invoice)
+app.use('/api/invoice', invoice)
 app.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`))
 

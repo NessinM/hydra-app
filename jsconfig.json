@@ -18,6 +18,9 @@
   ],
   "vueCompilerOptions": {
     "experimentalDisableTemplateSupport": true,
-    "jsx": "preserve"
-  }
+    "jsx": "preserve",
+    "plugins": [
+      "@volar/vue-language-plugin-pug"
+    ]
+  },
 }

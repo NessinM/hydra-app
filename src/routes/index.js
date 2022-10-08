@@ -9,8 +9,9 @@ const routes = [
     component: DashboardView
   },
   {
-    path     : '/invoice-print',
+    path     : '/invoice-print/:hash?',
     name     : 'Print',
+    props    : true,
     component: PrintInvoiceView
   }
 ]
