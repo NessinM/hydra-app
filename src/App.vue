@@ -1,6 +1,6 @@
 <template>
   <div>
-    <small>Aqui se va renderizar el app</small>
+    <small>Aqui se va renderizar el juegoooo app 1 eee ddd</small>
   </div>
 </template>
 
