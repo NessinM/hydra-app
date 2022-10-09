@@ -1,17 +1,7 @@
 <template lang="pug">
 div
   | Dashboard
-  router-link(to="/invoice-print") documento visualizar
+  router-link(to="/v01?file=f0b9a0fcda488fede19c735cee8321d5") Documento visualizar
 </template>
 <script setup>
-// import { onMounted } from 'vue'
-// import { apiGet } from '../util/general'
-// onMounted(async () => {
-//   try {
-//     const { data } = await apiGet(`/invoice`)
-//     console.log('data', data)
-//   } catch (error) {
-//     console.log('error', error)
-//   }
-// })
 </script>

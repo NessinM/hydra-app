@@ -9,10 +9,12 @@ const routes = [
     component: DashboardView
   },
   {
-    path     : '/invoice-print/:hash?',
+    path     : '/v01',
     name     : 'Print',
-    props    : true,
-    component: PrintInvoiceView
+    component: PrintInvoiceView,
+    props    : route => ({
+      file: route.query.file
+    })
   }
 ]
 

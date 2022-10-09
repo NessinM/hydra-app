@@ -5,6 +5,7 @@ div
     div(v-else)
       div(v-if="path")
         | Mostrar el pdf en el iframe {{path}}
+        div hash : {{hash}}
       div(v-else)
         | El hash enviado no corresponde a ningun docuemnto
   div(v-else)
@@ -23,9 +24,8 @@ div
       }
     },
     setup({ hash }) {
-      let path = ref('')
+      let path      = ref('')
       let isLoading = ref(false)
-      console.log('props in component', hash)
       onMounted(async () => {
         try {
           isLoading.value = true

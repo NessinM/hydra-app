@@ -10,18 +10,17 @@ import printPdfInvoice from '../components/c_print_pdf_invoice.vue'
 
 export default defineComponent({
   name      : 'Print_Invoice',
-  props: {
-    hash : {
-      type    : String,
-      required: false,
-      default : ''
+  components: {
+    'print-pdf-invoice': printPdfInvoice
+  },
+  props : {
+    file : {
+      type   : String,
+      default: ''
     }
   },
-  components: {
-    'print-pdf-invoice' : printPdfInvoice
-  },
-  setup({ hash }) {
-    const hashRoute = ref(hash || '')
+  setup(props) {
+    const hashRoute = ref(props.file)
     return {
       hashRoute
     }
