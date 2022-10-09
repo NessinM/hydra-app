@@ -13,9 +13,9 @@ const __filename          = fileURLToPath(import.meta.url);
 const __dirname           = path.dirname(__filename);
 const __directoryInvoices = './storage_invoices_listener'
 
-dotenv.config({ path:  path.resolve(__dirname, `.env.${process.env.NODE_ENV}`) })
+dotenv.config({ path:  path.resolve(__dirname, `.env.${ process.env.NODE_ENV }`) })
 
-const PORT = process.env.PORT
+const PORT = process.env.API_PORT
 const app  = express()
 
 app.use(cors())
