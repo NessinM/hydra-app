@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   | Dashboard
-  router-link(to="/v01?file=f0b9a0fcda488fede19c735cee8321d5") Documento visualizar
+  router-link(to="/V01?file=INV20222010013135907F07989255") Documento visualizar
 </template>
 <script setup>
 </script>

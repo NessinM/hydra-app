@@ -4,14 +4,27 @@ import moment        from 'moment'
 import fsPromises    from 'fs/promises'
 import fs            from 'fs'
 import process       from 'process'
-import crypto        from 'crypto-js';
+
+const empresas            = {
+  '20100131359': 'datacont',
+  '20100781313': 'reprodata'
+}
+const invoicesType        = {
+  '01': 'factura',
+  '02': 'boleta',
+  '03': 'nota-credito',
+  '07': 'nota-debito'
+}
 
 const getInvoice = (req, res) => {
-  const hash     = req.query.hash || ''
+  let   hash      = req.query.hash || ''
+  const extension = req.query.extension || 'pdf'
 
   let response = {
     status : 0,
   }
+
+  console.log('Get invoice: ', hash)
 
   if (!hash) {
     response.message = `Datos invalidos para la consulta`
@@ -19,9 +32,37 @@ const getInvoice = (req, res) => {
     return
   }
 
-  response.status   = 1
-  response.document = { path : `https://www.gimtec.io/articles/process-is-not-defined/${hash}` }
-  res.send(response)
+  if (hash.length !== 29) {
+    response.message = `El identificador del documento es invalido`
+    res.send(response)
+    return
+  }
+
+  const { pathFile, found, filename } = findInvoiceInStorage(hash, extension)
+
+  try {
+    response = {
+      base64PDF : found ?  fs.readFileSync(pathFile, { encoding: 'base64' }) : '',
+      found,
+    }
+    res.send(response)
+  } catch (err) {
+    res.send({ message: err });
+  }
+
+}
+
+const findInvoiceInStorage = (hash, extension = 'pdf') => {
+  hash     = hash.replace('INV', '')
+  const year     = hash.substring(0, 4)
+  const ruc      = hash.substring(4, 15)
+  const puesto   = hash.substring(15, 17)
+  const serie    = hash.substring(17, 21)
+  const number   = hash.substring(21, hash.length)
+  const filename = `${ruc}-${puesto}-${serie}-${number}.${extension}`
+  const pathFile = path.join(process.cwd(), "storage_invoices", year, empresas[ruc], extension, invoicesType[puesto], filename)
+  const found    = fs.existsSync(pathFile)
+  return { pathFile, found, filename }
 }
 
 const processFiles = (files) => {
@@ -39,16 +80,6 @@ const validarParametrosFile = async (file = '') => {
   const currentPath         = path.join(process.cwd(), "storage_invoices_listener", file);
   const filename            = file.substring(0, file.lastIndexOf('.')) || file;
   const estructure_filename = filename.split('-')
-  const empresas            = {
-    '20100131359': 'datacont',
-    '20100781313': 'reprodata'
-  }
-  const invoicesType        = {
-    '01': 'factura',
-    '02': 'boleta',
-    '03': 'nota-credito',
-    '07': 'nota-debito'
-  }
 
   if (estructure_filename.length < 4) {
     await writeLogError(file, 'No cuenta con un nombre de archivo adecuado')
@@ -69,7 +100,7 @@ const validarParametrosFile = async (file = '') => {
     if (!fs.existsSync(destinationPDFDirectoryPath))         fs.mkdirSync(destinationPDFDirectoryPath);
     if (!fs.existsSync(destinationInvoiceTypeDirectoryPath)) fs.mkdirSync(destinationInvoiceTypeDirectoryPath);
     await fsPromises.rename(currentPath, `${destinationInvoiceTypeDirectoryPath}/${file}`)
-    await generateAndUpdatePathInSAP(`${year}-${file}`)
+    await generateAndUpdatePathInSAP(`${year}-${filename}`)
   }
 }
 
@@ -81,9 +112,10 @@ const writeLogError = async (file, message) => {
   await fsPromises.rename(path.join(process.cwd(), "storage_invoices_listener", file), `storage_invoices/errors/${file}`)
 }
 
-const generateAndUpdatePathInSAP = async (filename) => {
-  const nameEncrypt       = crypto.MD5(filename, 'hydra')
-  const pathInvoiceUpdate = `${process.env.CLIENT_ROUTE}/V01?file=${nameEncrypt}`
+const generateAndUpdatePathInSAP = async (filename = '') => {
+  const nameEncrypt       = filename.split('-').join('')
+  const pathInvoiceUpdate = `${process.env.CLIENT_ROUTE}/V01?file=INV${nameEncrypt}`
+  console.log('pathInvoiceUpdate', pathInvoiceUpdate)
 }
 
 export default {

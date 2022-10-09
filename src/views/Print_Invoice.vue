@@ -1,7 +1,5 @@
 <template lang="pug">
 div
-  h1 Invoice
-  router-link(to="/") Regresar al dashboard
   print-pdf-invoice(:hash="hashRoute")
 </template>
 <script>
