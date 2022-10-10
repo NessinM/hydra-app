@@ -1,14 +1,15 @@
 <template lang="pug">
-div
-  div(v-if="hash")
-    div(v-if="isLoading") verificando validez del hash...
-    div(v-else)
-      div(v-if="dataBase64PDF")
-        object(type='application/pdf' id="pdf_invoice" width='100%' height='95%' :data="dataBase64PDF")
-      div(v-else)
-        | El hash enviado no corresponde a ningun docuemnto
-  div(v-else)
-    | No se puede representar ningun documento por que no existe el hash correspondiente
+object(type='application/pdf' id="pdf_invoice" width='100%' height='96%' :data="dataBase64PDF" v-if="dataBase64PDF")
+//- div
+//-   div(v-if="hash")
+//-     div(v-if="isLoading") verificando validez del hash...
+//-     div(v-else)
+//-       div(v-if="dataBase64PDF")
+//-         | ddskfdsjk
+//-       div(v-else)
+//-         | El hash enviado no corresponde a ningun docuemnto
+//-   div(v-else)
+//-     | No se puede representar ningun documento por que no existe el hash correspondiente
 </template>
 <script>
 import { defineComponent, onMounted, ref } from 'vue';
