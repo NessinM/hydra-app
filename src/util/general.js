@@ -1,4 +1,7 @@
 import axios from 'axios'
+import { notify } from "@kyvg/vue3-notification";
+
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_ROUTE,
   headers: {
@@ -7,20 +10,33 @@ const api = axios.create({
   }
 })
 
-const params = async () => {
-  return {
-    token       : '',
-    tokenOctopus: '',
-    empresa     : '',
+// const params = async () => {
+//   return {
+  // agregar token, empresa etc
+//   }
+// }
+
+export const apiGet = async (URL,  payload) =>  {
+  // const plusParams = await params()
+  try {
+    const { data } = await api.get(`${URL}`, { params: { ...payload } });
+    if (!data.status) throw data
+    else return data
+  } catch (error) {
+    throw error
   }
 }
 
-export const apiGet = async (URL,  payload) =>  {
-  const plusParams = await params()
-  return api.get(`${URL}`, { params: { ...payload, ...plusParams } }).then(response => response);
+export const apiPost = async (URL, payload) =>  {
+  // const plusParams = await params()
+  return api.post(`${URL}`, {...payload }).then(response => response);
 }
 
-export const apiPost = async (URL, payload) =>  {
-  const plusParams = await params()
-  return api.post(`${URL}`, {...payload, ...plusParams }).then(response => response);
+export const notificacion = (type, title, text) =>  {
+  notify({
+    title   : title,
+    text    : text,
+    position: 'bottom right',
+    type    : type
+  });
 }

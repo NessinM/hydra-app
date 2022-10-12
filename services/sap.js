@@ -3,18 +3,23 @@ import general from './general.js';
 
 const consumeSapService = async (empresa, method, form) => {
   const url           = `${process.env.API_SAP_ROUTE}/${method}.xsjs`
-  const formStringify = JSON.stringify(form)
-
   try {
-    console.log('formStringify', formStringify)
-    const { status, data } = await axios.post(url, { form: formStringify, timeout: 20000 })
-    console.log('status', status)
-    console.log('data', data)
+    const { data } = await axios.post(url, { timeout: 20000, ...form })
     return data
   } catch (error) {
-    if (process.env.NODE_ENV !== 'development') await general.notifySlack(empresa, error, method, formStringify);
+    if (process.env.NODE_ENV !== 'development') await general.notifySlack(empresa, error, method, JSON.stringify(form));
     throw error
   }
+
+  // var  body = {
+  //        env: 'development',
+  //        empresa: 'datacont',
+  //        FolioPref: 'F010',
+  //        FolioNum: '3062',
+  //        Indicator: '01',
+  //        fechaDocumento: '20200804',
+  //        DocTotal : 31487.12
+  //    };
 
   // post(url, { form: formStringify, timeout: 20000 }, (err, response, body) => {
   //   if (err) {

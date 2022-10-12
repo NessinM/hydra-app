@@ -6,26 +6,13 @@ import fs            from 'fs'
 import process       from 'process'
 import api           from '../api/sap_invoice.js'
 
-const empresas            = {
-  '20100131359': 'datacont',
-  '20100781313': 'reprodata'
-}
-const invoicesType        = {
-  '01': 'factura',
-  '02': 'boleta',
-  '03': 'nota-credito',
-  '07': 'nota-debito'
-}
-
-const getInvoice = (req, res) => {
+const renderDocumentOfHash = (req, res) => {
   let   hash      = req.query.hash || ''
   const extension = req.query.extension || 'pdf'
 
   let response = {
     status : 0,
   }
-
-  console.log('Get invoice: ', hash)
 
   if (!hash) {
     response.message = `Datos invalidos para la consulta`
@@ -50,18 +37,43 @@ const getInvoice = (req, res) => {
   } catch (err) {
     res.send({ message: err });
   }
+}
 
+const getDocumentSAP = async (req, res) => {
+  let empresa = req.query.empresa || ''
+  let folio   = req.query.folio || ''
+  let numero  = req.query.numero || ''
+  let tipo    = req.query.tipo || ''
+  let fecha   = req.query.fecha || ''
+  let monto   = req.query.monto || ''
+
+  let response = {
+    status : 0,
+  }
+
+  if (!folio || !numero || !tipo || !fecha || !monto || !empresa) {
+    response.message = `Datos invalidos para realizar la consulta`
+    res.send(response)
+    return
+  }
+
+  try {
+    const data = await api.getDocumentSAP(empresa, folio, numero, tipo, fecha, monto)
+    res.send(data)
+  } catch (error) {
+    res.send({ message: error });
+  }
 }
 
 const findInvoiceInStorage = (hash, extension = 'pdf') => {
-  hash     = hash.replace('INV', '')
+  hash           = hash.replace('INV', '')
   const year     = hash.substring(0, 4)
   const ruc      = hash.substring(4, 15)
   const puesto   = hash.substring(15, 17)
   const serie    = hash.substring(17, 21)
   const number   = hash.substring(21, hash.length)
   const filename = `${ruc}-${puesto}-${serie}-${number}.${extension}`
-  const pathFile = path.join(process.cwd(), "storage_invoices", year, empresas[ruc], extension, invoicesType[puesto], filename)
+  const pathFile = path.join(process.cwd(), "storage_invoices", year, global.business[ruc] || 'sin-ruc', extension, global.business[puesto], filename)
   const found    = fs.existsSync(pathFile)
   return { pathFile, found, filename }
 }
@@ -85,14 +97,14 @@ const validarParametrosFile = async (file = '') => {
   try {
     if (estructure_filename.length < 4) {
       await writeLogError(file, 'No cuenta con un nombre de archivo adecuado')
-    } else if (estructure_filename[0] !== '20100131359' && estructure_filename[0] !== '20100781313') {
+    } else if (!global.business.filter(e => e.value === estructure_filename[0]).length) {
       await writeLogError(file, 'El primer parametro del filename no es un RUC valido')
-    } else if (estructure_filename[1] !== '07' && estructure_filename[1] !== '03' && estructure_filename[1] !== '09') {
-      await writeLogError(file, 'El segundo parametro del filename no es un puesto valido')
+    } else if (!global.documentTypes.filter(e => e.value === estructure_filename[1]).length) {
+      await writeLogError(file, 'El segundo parametro del filename no es un tipo de documento valido')
     } else {
       const year                                               = moment().format('YYYY')
-      const empresa                                            = empresas[estructure_filename[0]]
-      const typeInvoice                                        = invoicesType[estructure_filename[1]]
+      const empresa                                            = global.business[estructure_filename[0]]
+      const typeInvoice                                        = global.documentTypes[estructure_filename[1]]
       const filenameYear                                       = `${year}-${filename}`.split('-').join('')
       const pathInvoiceUpdate                                  = `${process.env.API_CLIENT_ROUTE}/V01?file=INV${filenameYear}`
       const destinationYearDirectoryPath                       = path.join(process.cwd(), "storage_invoices", year)
@@ -123,5 +135,6 @@ const writeLogError = async (file, message) => {
 
 export default {
   processFiles,
-  getInvoice
+  renderDocumentOfHash,
+  getDocumentSAP
 }

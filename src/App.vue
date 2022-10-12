@@ -1,7 +1,8 @@
 <template lang="pug">
 router-view
+notifications
 </template>
 
-<script setup>
+<script>
 </script>
 

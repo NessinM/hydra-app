@@ -1,5 +1,5 @@
 <template lang="pug">
-.full
+.h-screen
   print-pdf-invoice(:hash="hashRoute")
 </template>
 <script>
@@ -25,7 +25,7 @@ export default defineComponent({
   }
 })
 </script>
-<style>
+<!-- <style>
 .full {
   width: 100%;
   height: 100vh;
@@ -34,4 +34,4 @@ body {
   margin : 0px;
   /* overflow-y: hidden; */
 }
-</style>
+</style> -->

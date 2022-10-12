@@ -21,6 +21,40 @@ const app  = express()
 app.use(cors())
 // app.use(history())
 
+//global
+global.documentTypes = [
+  {
+    value: '01',
+    name : 'FACTURA'
+  },
+  {
+    value: '03',
+    name : 'BOLETA'
+  },
+  {
+    value: '07',
+    name : 'NOTA DE CREDITO'
+  },
+  {
+    value: '08',
+    name : 'NOTA DE DEBITO'
+  },
+  {
+    value: '09',
+    name : 'GUIA DE REMISION REMITENTE'
+  }
+]
+global.business = [
+  {
+    value: '20100131359',
+    name : 'datacont'
+  },
+  {
+    value: '20100340438',
+    name : 'reprodata'
+  }
+]
+
 // statics
 app.use('/', express.static('dist'))
 app.use('/storage', express.static(__dirname + '/storage'))
