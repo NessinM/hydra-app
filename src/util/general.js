@@ -20,8 +20,13 @@ export const apiGet = async (URL,  payload) =>  {
   // const plusParams = await params()
   try {
     const { data } = await api.get(`${URL}`, { params: { ...payload } });
-    if (!data.status) throw data
-    else return data
+    console.log('data', data)
+    if (!data.status) {
+      throw data
+      return
+    }
+
+    return data
   } catch (error) {
     throw error
   }
@@ -29,7 +34,8 @@ export const apiGet = async (URL,  payload) =>  {
 
 export const apiPost = async (URL, payload) =>  {
   // const plusParams = await params()
-  return api.post(`${URL}`, {...payload }).then(response => response);
+  console.log('payload', payload)
+  return api.post(`${URL}`, payload);
 }
 
 export const notificacion = (type, title, text) =>  {

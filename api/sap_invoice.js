@@ -1,24 +1,30 @@
 import service from '../services/sap.js'
 
-const updatePathInvoiceInSAP = async (empresa, serie, path) => {
-  const method = 'services/salida_mercancia_borrador_get'
+const updatePathInvoiceInSAP = async (empresa, serie, numero, indicator, pathPDF, pathXML) => {
+  const folder = process.env.NODE_ENV === 'development' ? 'dev' : 'prod'
+  const method = `${folder}/documentos_electronicos_update`
   const form   = {
-    env    : process.env.NODE_ENV,
-    empresa: empresa,
-    serie  : serie,
-    path   : path
+    env      : process.env.NODE_ENV,
+    empresa  : empresa,
+    FolioPref: serie,
+    FolioNum : numero,
+    Indicator: indicator,
+    enlaceXML: pathXML,
+    enlacePDF: pathPDF
   };
+
+  console.log('form', form)
 
   try {
     const response = await service.consumeSapService(empresa, method, form)
-    console.log('response updatePathInvoiceInSAP', response)
-    return response
+    if (!response.status) throw response.message
+    else return response
   } catch (error) {
     throw error
   }
 }
 
-const getDocumentSAP = async (empresa, folio, numero, tipo, fecha, monto) => {
+const getInvoiceSAP = async (empresa, folio, numero, tipo, fecha, monto) => {
   const folder = process.env.NODE_ENV === 'development' ? 'dev' : 'prod'
   const method = `${folder}/consulta_factura_electronica`
   const form   = {
@@ -31,11 +37,10 @@ const getDocumentSAP = async (empresa, folio, numero, tipo, fecha, monto) => {
     DocTotal      : monto
   };
 
-  console.log('form', form)
+
 
   try {
     const response = await service.consumeSapService(empresa, method, form)
-    console.log('response getDocumentSAP', response)
     return response
   } catch (error) {
     throw error
@@ -44,5 +49,5 @@ const getDocumentSAP = async (empresa, folio, numero, tipo, fecha, monto) => {
 
 export default {
   updatePathInvoiceInSAP,
-  getDocumentSAP
+  getInvoiceSAP
 }

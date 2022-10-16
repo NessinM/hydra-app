@@ -24,24 +24,29 @@ app.use(cors())
 //global
 global.documentTypes = [
   {
-    value: '01',
-    name : 'FACTURA'
+    value    : '01',
+    directory: 'factura',
+    name     : 'FACTURA'
   },
   {
-    value: '03',
-    name : 'BOLETA'
+    value    : '03',
+    directory: 'boleta',
+    name     : 'BOLETA'
   },
   {
-    value: '07',
-    name : 'NOTA DE CREDITO'
+    value    : '07',
+    directory: 'nota-de-credito',
+    name     : 'NOTA DE CREDITO'
   },
   {
-    value: '08',
-    name : 'NOTA DE DEBITO'
+    value    : '08',
+    directory: 'nota-de-debito',
+    name     : 'NOTA DE DEBITO'
   },
   {
-    value: '09',
-    name : 'GUIA DE REMISION REMITENTE'
+    value    : '09',
+    directory: 'guia-remision',
+    name     : 'GUIA DE REMISION REMITENTE'
   }
 ]
 global.business = [
@@ -52,6 +57,38 @@ global.business = [
   {
     value: '20100340438',
     name : 'reprodata'
+  }
+]
+global.responseTypeSunat = [
+  {
+    titulo   : 'NO EXISTE EN SUNAT',
+    subtitulo: 'El comprobante todavia no fue informado',
+    type     : 'danger',
+    id       : 0
+  },
+  {
+    titulo   : 'ACEPTADO POR SUNAT',
+    subtitulo: 'El comprobante fué aceptado',
+    type     : 'success',
+    id       : 1
+  },
+  {
+    titulo   : 'ANULADO',
+    subtitulo: 'El comprobante fué dado de baja',
+    type     : 'danger',
+    id       : 2
+  },
+  {
+    titulo   : 'AUTORIZADO',
+    subtitulo: 'El comprobante cuenta con autorización de imprenta',
+    type     : 'info',
+    id       : 3
+  },
+  {
+    titulo   : 'NO AUTORIZADO',
+    subtitulo: 'El comprobante no cuenta con autorización de imprenta',
+    type     : 'warning',
+    id       : 4
   }
 ]
 

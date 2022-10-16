@@ -5,6 +5,7 @@ const router = Router();
 import invoice from '../models/invoice.js';
 
 router.get('/', invoice.renderDocumentOfHash)
-router.get('/search', invoice.getDocumentSAP)
+router.get('/search', invoice.getInvoiceSAP)
+router.get('/status/sunat', invoice.getStatusInvoiceSunat)
 
 export default router
