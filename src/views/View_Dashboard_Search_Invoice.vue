@@ -15,7 +15,7 @@
               small.ml-3.whitespace-nowrap.text-gray-300 {{e.ruc}}
             font-awesome-icon.text-2xl.inline-flex.items-center.justify-center(icon='fa fa-check-circle' :class="empresaSelect === e.name ? 'text-green-400' : 'text-gray-200'" )
       div
-        button.w-full.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-sm.px-5.text-center.mr-2.mb-2(
+        button.w-full.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-xs.px-5.text-center.mr-2.mb-2(
           class="hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300  shadow-red-500/50  py-2.5",
           @click="continuarConLaEmpresaSeleccionado()"
         ) continuar
@@ -69,8 +69,8 @@ section.flex(v-else)
                 class="sm:text-xs focus:ring-primary-600 focus:border-primary-600 p-2.5   ",
                 placeholder="seleccionar..."
               )
-                option(value="01") BOLETA
-                option(value="03") FACTURA
+                option(value="01") FACTURA
+                option(value="03") BOLETA
                 option(value="07") NOTA DE CREDITO
                 option(value="08") NOTA DE DEBITO
                 option(value="09") GUIA REMISION
@@ -119,21 +119,16 @@ section.flex(v-else)
               ) Importe total
               input.bg-gray-50.border.border-gray-200.text-gray-900.rounded-lg.block.w-full.placeholder-gray-300#monto(
                 v-model="monto",
-                type="number",
+                type="text",
                 name="monto",
                 class="sm:text-xs focus:ring-primary-600 focus:border-primary-600 p-2.5   ",
                 placeholder="45257.01"
               )
 
-          button.w-full.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-sm.px-5.text-center.mr-2.mb-2(
+          button.w-full.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-xs.px-5.text-center.mr-2.mb-2(
             class="hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300  shadow-red-500/50  py-2.5",
             @click="fetchGetInvoice()"
           ) Buscar comprobante
-
-  //- div
-  //-   h1(class='text-3xl font-bold underline')
-  //-     | Hello world!
-  //-   router-link(to="/V01?file=INV20222010013135907F07989255") comprobante visualizar
 </template>
 <script>
 import moment from "moment";
@@ -152,11 +147,11 @@ export default defineComponent({
     let   router        = useRouter()
     let   empresaSelect = ref("");
     let   empresa       = ref("");
-    let   folio         = ref("F010");     // F010
-    let   numero        = ref("3062");     // 3062
+    let   folio         = ref("F020");     // F010
+    let   numero        = ref("53304");     // 3062
     let   tipo          = ref("01");   // 01
-    let   fecha         = ref("2020-08-04");     // 20200804
-    let   monto         = ref("31487.12");     // 31487.12
+    let   fecha         = ref("2022-08-29");     // 20200804
+    let   monto         = ref("41223.00");     // 31487.12
     let   isLoading     = ref(false);
     const empresas      = ref([
       {
@@ -197,13 +192,15 @@ export default defineComponent({
         const { data } = await apiGet(`/invoice/search`, payload);
 
         if (data.length) {
-          // window.open(data[0].PDF, '_self')
-          localStorage.setItem('invoice', JSON.stringify(payload))
-          localStorage.setItem('empresaSelect', empresaSelect.value)
-          window.open('/V01?file=INVP20222010013135907F07989255', '_self')
+          if (data[0]?.PDF || data[0]?.XML) {
+            localStorage.setItem('invoice', JSON.stringify(payload))
+            localStorage.setItem('empresaSelect', empresaSelect.value)
+            if (data[0].PDF) window.open(data[0].PDF, '_self')
+            else if (data[0].XML) window.open(data[0].XML, '_self')
+          } else notificacion('error', 'Error', 'El documento no cuenta con representacion grafica (pdf, xml)')
         } else notificacion('error', 'Error', 'Los datos ingresados no coinciden con ningun comprobante electronico')
       } catch (error) {
-        notificacion('error', 'Error', error.message)
+        notificacion('error', 'Error', 'Existen inconvenientes para realizar la consulta por favor vuelva a intentarlo')
       } finally {
         isLoading.value = false;
       }

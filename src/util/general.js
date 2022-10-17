@@ -20,10 +20,8 @@ export const apiGet = async (URL,  payload) =>  {
   // const plusParams = await params()
   try {
     const { data } = await api.get(`${URL}`, { params: { ...payload } });
-    console.log('data', data)
     if (!data.status) {
       throw data
-      return
     }
 
     return data

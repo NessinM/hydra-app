@@ -91,6 +91,7 @@ global.responseTypeSunat = [
     id       : 4
   }
 ]
+global.isProcessing = false
 
 // statics
 app.use('/', express.static('dist'))
@@ -100,10 +101,13 @@ app.use('/storage', express.static(__dirname + '/storage'))
 app.use('/api/invoice', invoice)
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`)
-  cron.schedule("*/2 * * * * *", function () {
-    fs.readdir(__directoryInvoices, (err, files) => {
-      err ? console.log('Error al intentar buscar archivos') : invoiceModel.processFiles(files)
-    })
+  cron.schedule("*/10 * * * * *", function () {
+    if (!global.isProcessing) { // Ejecutar solo si no esta procesando archivos
+      // console.log('Entro a procesar -> ', global.isProcessing)
+      fs.readdir(__directoryInvoices, (err, files) => {
+        err ? console.log('Error al intentar buscar archivos') : invoiceModel.processFiles(files)
+      })
+    }
   })
 })
 
