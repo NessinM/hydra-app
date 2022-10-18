@@ -23,14 +23,14 @@
                   .flex.mt-4.space-x-3(class='md:mt-6')
                     button.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-xs.px-5.text-center.mr-2.my-2(type='button' class='hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 py-2.5' @click="hideModalSunatStatus()")  Volver al visor del documento
 .h-screen.overflow-y-auto.overflow-x-hidden.bg-gray-200
-  nav.bg-white.px-1.shadow-lg.sticky.top-0
+  nav.bg-white.px-1.sticky.top-0(class="lg:py-0 md:py-0 sm:py-3"  )
     .flex.flex-wrap.justify-between.items-center
       router-link.flex.items-center(:to="`/search-invoice?company=${empresaSelect}`")
-        img.mx-3(src='logo_hydra.png' class='sm:h-9' alt='Logo')
+        img.mx-3.w-8.h-8(src='logo_hydra.png' class='sm:h-9' alt='Logo')
         .flex.flex-col.leading-none
           span.text-md.font-bold.whitespace-nowrap.text-gray-600 Hydra Storage
           span.text-xs.font-bold.whitespace-nowrap.text-gray-400 Visor de documentos electronicos
-      #navbar-cta.justify-between.items-center.w-full(class='md:flex md:w-auto md:order-1')
+      #navbar-cta.justify-between.items-center.w-full.hidden(class='md:flex md:w-auto md:order-1 md:block lg:block')
         ul.flex.flex-col.p-2.rounded-lg.items-center(class='md:flex-row  md:mt-0 md:text-sm md:font-medium md:border-0')
           li.mx-1
             button.text-white.bg-gradient-to-r.from-gray-400.via-gray-500.to-gray-600.shadow-lg.font-bold.rounded-lg.text-xs.px-5.text-center(
