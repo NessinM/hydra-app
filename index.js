@@ -5,12 +5,15 @@ import path from "path";
 import fs from "fs";
 import cron from "node-cron";
 import invoiceModel from "./models/invoice.js";
+import storageModel from "./models/upload.js";
 import { fileURLToPath } from "url";
-import invoice from "./routes/invoice.js";
+import invoiceRouter from "./routes/invoice.js";
+import uploadRouter from "./routes/upload.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const __directoryInvoices = "./storage_invoices_listener";
+const __directoryStorage = "./storage_listener";
 
 dotenv.config({
   path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`),
@@ -94,14 +97,16 @@ global.electronic_document_response_sunat_type = [
 global.electronic_document_is_loading = false;
 
 //global signed external file
-// global.signed_external_file_is_loading = false;
+global.storage_is_loading = false;
 
 // statics
 app.use("/", express.static("dist"));
 app.use("/storage", express.static(__dirname + "/storage"));
 
 // routes
-app.use("/api/invoice", invoice);
+app.use("/api/invoice", invoiceRouter);
+app.use("/api/upload", uploadRouter);
+
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 
@@ -110,8 +115,16 @@ app.listen(PORT, () => {
     if (!global.electronic_document_is_loading) {
       fs.readdir(__directoryInvoices, (err, files) => {
         err
-          ? console.log("Error al intentar buscar archivos")
+          ? console.log("Error al intentar buscar archivos invoices")
           : invoiceModel.processFiles(files);
+      });
+    }
+
+    if (!global.storage_is_loading) {
+      fs.readdir(__directoryStorage, (err, files) => {
+        err
+          ? console.log("Error al intentar buscar archivos storage")
+          : storageModel.processFiles(files);
       });
     }
 

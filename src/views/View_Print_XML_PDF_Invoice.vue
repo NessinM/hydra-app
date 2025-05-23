@@ -28,7 +28,7 @@
         .flex.flex-col.leading-none
           span.text-md.font-bold.whitespace-nowrap.text-gray-600 Hydra Storage
           span.text-xs.font-bold.whitespace-nowrap.text-gray-400 Visor de documentos electronicos
-      #navbar-cta.justify-between.items-center.w-full.hidden(class='md:flex md:w-auto md:order-1 lg:block')
+      #navbar-cta.justify-between.items-center.w-full(class='md:flex md:w-auto md:order-1 lg:block')
         ul.flex.flex-col.p-2.rounded-lg.items-center(class='md:flex-row  md:mt-0 md:text-sm md:font-medium md:border-0')
           li.mx-1
             button.text-white.bg-gradient-to-r.from-gray-400.via-gray-500.to-gray-600.shadow-lg.font-bold.rounded-lg.text-xs.px-5.text-center(
@@ -137,7 +137,6 @@ export default defineComponent({
           monto: storageInvoice.monto,
         });
         dataStatusSunat.value = response.body;
-        console.log("datadatadata fetchGetStatusInvoiceSunat", response);
       } catch (error) {
         notificacion(
           "error",

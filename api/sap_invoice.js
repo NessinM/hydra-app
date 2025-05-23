@@ -17,7 +17,6 @@ const updatePathInvoiceInSAP = async (empresa, serie, numero, indicator, pathPDF
 
   try {
     const response = await service.consumeSapService(empresa, method, form)
-    console.log('response', response)
     if (!response.status) throw response.message
     else return response
   } catch (error) {

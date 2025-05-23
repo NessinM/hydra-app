@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 storage/*
+storage_listener/*
 storage_invoices/*
 storage_invoices_listener/*
 dist-ssr
