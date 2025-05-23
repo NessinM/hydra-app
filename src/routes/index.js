@@ -31,19 +31,4 @@ const router = createRouter({
 })
 
 
-// router.beforeEach(async (to, from, next) => {
-//   const isAuthenticated = await canUserAccessToRouter(to)
-//   console.log('isAuthenticated', isAuthenticated)
-//   if (to.name !== 'Login' && to.name !== 'Register' && to.name !== 'Forgot' && !isAuthenticated) next({ name: 'Login' })
-//   else next()
-// })
-
-
-// const canUserAccessToRouter = (to) => {
-//   return new Promise ((resolve, reject) => {
-//     console.log('to', to)
-//     resolve(false)
-//   })
-// }
-
 export default router

@@ -2,7 +2,3 @@
 router-view
 notifications
 </template>
-
-<script>
-</script>
-

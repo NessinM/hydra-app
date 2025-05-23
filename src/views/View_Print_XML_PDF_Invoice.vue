@@ -1,5 +1,3 @@
-
-
 <template lang="pug">
 .relative.z-10(v-if="showModalSunatStatus")
   .fixed.inset-0.bg-gray-700.bg-opacity-75.transition-opacity
@@ -17,7 +15,7 @@
                 span.text-sm.text-gray-500.font-semibold Consultando comprobante en SUNAT
               .w-full.bg-white.rounded-lg.py-4(v-else)
                 .flex.flex-col.items-center
-                  img.mb-3.w-20.h-20.rounded-full.shadow-lg.py-2.px-2(src='sunat.png' alt='sunat')
+                  img.mb-3.w-20.h-20.rounded-full.shadow-lg.py-2.px-2(src='/public/sunat.png' alt='sunat')
                   h5.mb-1.text-xl.font-bold(:class="(dataStatusSunat.id === 1 || dataStatusSunat.id === 3) ? 'text-green-400' : 'text-red-400'") {{dataStatusSunat.titulo}}
                   span.text-sm.text-gray-500.font-semibold {{dataStatusSunat.subtitulo}}
                   .flex.mt-4.space-x-3(class='md:mt-6')
@@ -26,11 +24,11 @@
   nav.bg-white.px-1.sticky.top-0(class="lg:py-0 md:py-0 sm:py-3"  )
     .flex.flex-wrap.justify-between.items-center
       router-link.flex.items-center(:to="`/search-invoice?company=${empresaSelect}`")
-        img.mx-3.w-8.h-8(src='logo_hydra.png' class='sm:h-9' alt='Logo')
+        img.mx-3.w-8.h-8(src='/public/logo_hydra.png' class='sm:h-9' alt='Logo')
         .flex.flex-col.leading-none
           span.text-md.font-bold.whitespace-nowrap.text-gray-600 Hydra Storage
           span.text-xs.font-bold.whitespace-nowrap.text-gray-400 Visor de documentos electronicos
-      #navbar-cta.justify-between.items-center.w-full.hidden(class='md:flex md:w-auto md:order-1 md:block lg:block')
+      #navbar-cta.justify-between.items-center.w-full.hidden(class='md:flex md:w-auto md:order-1 lg:block')
         ul.flex.flex-col.p-2.rounded-lg.items-center(class='md:flex-row  md:mt-0 md:text-sm md:font-medium md:border-0')
           li.mx-1
             button.text-white.bg-gradient-to-r.from-gray-400.via-gray-500.to-gray-600.shadow-lg.font-bold.rounded-lg.text-xs.px-5.text-center(
@@ -67,82 +65,96 @@
       font-awesome-icon.fa-2x.mx-1(icon='fa-solid fa-triangle-exclamation')
       span No se encontro un archivo XML para este documento.
   .fixed.top-0.left-0.right-0.bottom-0.w-full.h-screen.z-50.overflow-hidden.bg-gray-50.flex.flex-col.items-center.justify-center(v-if="!dataBase64PDF && !isLoading")
-    img.my-2(src="document_not_found.png" width="100")
+    img.my-2(src="/public/document_not_found.png" width="100")
     h2.text-center.text-md.font-bold.text-gray-500.mt-2 {{hash ? hash : 'NUMERO NO IDENTIFICADO'}}
     p.text-center.font-semibold.text-gray-500.text-sm(class='w-1/3') No se encontrarón coincidencias para este documento
     router-link.text-white.bg-gradient-to-r.from-red-400.via-red-500.to-red-600.shadow-lg.font-medium.rounded-lg.text-sm.px-5.text-center.mr-2.my-2(:to="`/search-invoice?company=${empresaSelect}`" type='button' class='hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 shadow-red-500/50 dark:shadow-lg dark:shadow-red-800/80 py-2.5' to=`/search-invoice?company=${empresa}`)  Regresar a la pagina anterior
 </template>
 <script>
-import moment from 'moment';
-import { defineComponent, onMounted, ref } from 'vue';
+import moment from "moment";
+import { defineComponent, onMounted, ref } from "vue";
 import { directive } from "vue3-click-away";
-import { apiGet, notificacion } from '../util/general'
+import { apiGet, notificacion } from "../util/general";
 export default defineComponent({
-  name : 'View_Print_XML_PDF_Invoice',
+  name: "View_Print_XML_PDF_Invoice",
   directives: {
-    ClickAway: directive
+    ClickAway: directive,
   },
   props: {
-    file : {
-      type   : String,
-      default: ''
-    }
+    file: {
+      type: String,
+      default: "",
+    },
   },
   setup(props) {
-    let   hash                 = ref(props.file || '')
-    let   typeViewRender       = ref('xml')
-    let   dataBase64PDF        = ref('')
-    let   dataBaseXML          = ref()
-    let   isLoading            = ref(true)
-    let   isLoadingStatusSunat = ref(false)
-    let   showModalSunatStatus = ref(false)
-    let   dataStatusSunat      = ref()
-    const storageInvoice       = JSON.parse(localStorage.getItem('invoice'))
-    const empresaSelect        = ref(localStorage.getItem('empresaSelect'))
+    let hash = ref(props.file || "");
+    let typeViewRender = ref("xml");
+    let dataBase64PDF = ref("");
+    let dataBaseXML = ref();
+    let isLoading = ref(true);
+    let isLoadingStatusSunat = ref(false);
+    let showModalSunatStatus = ref(false);
+    let dataStatusSunat = ref();
+    const storageInvoice = JSON.parse(localStorage.getItem("invoice"));
+    const empresaSelect = ref(localStorage.getItem("empresaSelect"));
     onMounted(async () => {
       try {
-        isLoading.value = true
-        const { foundPDF, foundXML, base64PDF, baseXML } = await apiGet(`/invoice`, { hash : hash.value })
-        if (foundPDF) dataBase64PDF.value =  `data:application/pdf;base64,${base64PDF}`
-        if (foundXML) dataBaseXML.value   =  baseXML
-        typeViewRender.value = hash.value.substring(0, 4) === 'INVP' ? 'pdf' : 'xml'
-        if (!foundPDF && !foundXML)  notificacion('error', 'Error', 'El documento no se encontro en el repositorio')
+        isLoading.value = true;
+        const { foundPDF, foundXML, base64PDF, baseXML } = await apiGet(
+          `/invoice`,
+          { hash: hash.value }
+        );
+        if (foundPDF)
+          dataBase64PDF.value = `data:application/pdf;base64,${base64PDF}`;
+        if (foundXML) dataBaseXML.value = baseXML;
+        typeViewRender.value =
+          hash.value.substring(0, 4) === "INVP" ? "pdf" : "xml";
+        if (!foundPDF && !foundXML)
+          notificacion(
+            "error",
+            "Error",
+            "El documento no se encontro en el repositorio"
+          );
       } catch (error) {
-        notificacion('error', 'Error', error)
+        notificacion("error", "Error", error);
       } finally {
-        isLoading.value = false
+        isLoading.value = false;
       }
-    })
+    });
 
     const fetchGetStatusInvoiceSunat = async () => {
       try {
-        showModalSunatStatus.value = true
+        showModalSunatStatus.value = true;
         isLoadingStatusSunat.value = true;
         const response = await apiGet(`/invoice/status/sunat`, {
-          empresa     : storageInvoice.empresa,
-          numeroSerie : storageInvoice.folio,
-          numero      : storageInvoice.numero,
-          codComp     : storageInvoice.tipo,
+          empresa: storageInvoice.empresa,
+          numeroSerie: storageInvoice.folio,
+          numero: storageInvoice.numero,
+          codComp: storageInvoice.tipo,
           fechaEmision: storageInvoice.fecha
             ? moment(storageInvoice.fecha, "YYYYMMDD").format("DD/MM/YYYY")
             : "",
           monto: storageInvoice.monto,
         });
-        dataStatusSunat.value = response.body
-        console.log('datadatadata fetchGetStatusInvoiceSunat', response)
+        dataStatusSunat.value = response.body;
+        console.log("datadatadata fetchGetStatusInvoiceSunat", response);
       } catch (error) {
-        notificacion('error', 'Error', 'Existen inconvenientes para realizar la consulta por favor vuelva a intentarlo')
-        hideModalSunatStatus()
+        notificacion(
+          "error",
+          "Error",
+          "Existen inconvenientes para realizar la consulta por favor vuelva a intentarlo"
+        );
+        hideModalSunatStatus();
       } finally {
         isLoadingStatusSunat.value = false;
       }
     };
 
     const hideModalSunatStatus = () => {
-      showModalSunatStatus.value = false
+      showModalSunatStatus.value = false;
     };
 
-    console.log('empresaSelect', empresaSelect)
+    console.log("empresaSelect", empresaSelect);
 
     return {
       dataBase64PDF,
@@ -155,10 +167,9 @@ export default defineComponent({
       isLoadingStatusSunat,
       dataStatusSunat,
       empresaSelect,
-      hash
-    }
-  }
-})
+      hash,
+    };
+  },
+});
 </script>
-<style>
-</style>
+<style></style>
