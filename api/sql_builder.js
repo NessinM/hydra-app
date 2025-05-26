@@ -24,7 +24,7 @@ async function insert(table, empresa, obj, driver = DEFAULT_DRIVER) {
   }
 
   const fields = Object.keys(obj);
-  const placeholders = fields.map(field => `@${field}`);
+  const placeholders = fields.map((field) => `@${field}`);
 
   const query = `
     INSERT INTO ${table} (${fields.join(", ")})
@@ -69,7 +69,9 @@ async function getOne(table, empresa, id, driver = DEFAULT_DRIVER) {
 async function update(table, empresa, key, obj, driver = DEFAULT_DRIVER) {
   if (!obj || Object.keys(obj).length === 0) return 0;
 
-  const updates = Object.keys(obj).map(field => `${field} = @${field}`).join(", ");
+  const updates = Object.keys(obj)
+    .map((field) => `${field} = @${field}`)
+    .join(", ");
   const query = `
     UPDATE ${table}
     SET ${updates}

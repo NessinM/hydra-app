@@ -1,21 +1,21 @@
 import sql from "mssql";
-import config from "../util/config";
+import config from "../config.js";
 
-const driver_1 = function (empresa, callback) {
-  var con = new sql.Connection(config[empresa].db.object_connection, function (
-    err
-  ) {
-    if (err) {
-      console.error("Error: ", err);
-      con.close();
-      callback(err);
-      return;
-    }
-
-    callback(null, con);
-  });
+/**
+ * Obtiene una conexión SQL usando async/await
+ * @param {string} empresa - Clave para acceder a la configuración de conexión
+ * @returns {Promise<sql.ConnectionPool>} - Devuelve una conexión abierta
+ */
+const driver_1 = async (empresa) => {
+  try {
+    const pool = await sql.connect(config[empresa].db.principal);
+    return pool;
+  } catch (err) {
+    console.error("Error al conectar a la BD:", err);
+    throw err;
+  }
 };
 
-export  default {
-  driver_1
-}
+export default {
+  driver_1,
+};

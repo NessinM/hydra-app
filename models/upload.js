@@ -1,9 +1,10 @@
-import sql from '../api/sql_builder.js';
-import path from 'path';
-import config from '../config';
-// import { promisify } from 'util';
-
-// const insertarLogUniversalAsync = promisify(api.octo.auditoria_universal.insert);
+import sql from "../api/sql_builder.js";
+import path from "path";
+import fs from "fs";
+import config from "../config.js";
+import async from "async";
+import moment from "moment";
+import fsPromises from "fs/promises";
 
 export const registrar = async (req, res) => {
   const { empresa, app, carpeta, usuario, numeroCarga } = req.query;
@@ -11,16 +12,18 @@ export const registrar = async (req, res) => {
 
   const response = {
     status: 0,
-    message: ''
+    message: "",
   };
 
   if (!req.file) {
-    response.message = 'No se ha subido ningun archivo';
+    response.message = "No se ha subido ningun archivo";
     return res.send(response);
   }
 
   try {
-    const localPath = path.join('storage', app, empresa, carpeta).replace(/\\/g, '/');
+    const localPath = path
+      .join("storage", app, empresa, carpeta)
+      .replace(/\\/g, "/");
     const ruta = `${domain}/${localPath}/${req.file.filename}`;
 
     const obj = {
@@ -33,10 +36,10 @@ export const registrar = async (req, res) => {
       empresa,
       peso: req.file.size,
       extension: path.extname(req.file.originalname),
-      accion: 'guardar nuevo archivo',
+      accion: "guardar nuevo archivo",
     };
 
-    await sql.insert('auditoria_upload', 'datacont', obj);
+    await sql.insert("auditoria_upload", "datacont", obj);
 
     // await insertarLogUniversal(empresa, usuario, 'Guardar nuevo archivo', numeroCarga);
 
@@ -50,9 +53,8 @@ export const registrar = async (req, res) => {
     response.file = obj;
 
     res.send(response);
-
   } catch (err) {
-    console.error('Error:', err.message);
+    console.error("Error:", err.message);
     response.message = err.message;
     res.send(response);
   }
@@ -69,7 +71,6 @@ export const registrar = async (req, res) => {
 //   // Asegúrate de que `api.octo.auditoria_universal.insert` esté adaptado a Promises
 //   return api.octo.auditoria_universal.insert(empresa, usuario, objAuditoriaUniversal);
 // }
-
 
 const processFiles = (files) => {
   global.storage_is_loading = true;
@@ -90,48 +91,88 @@ const processFiles = (files) => {
   );
 };
 
+function createDirIfNotExists(dirPath = "") {
+  if (!fs.existsSync(dirPath)) {
+    var parentDir = path.dirname(dirPath);
+    if (!fs.existsSync(parentDir)) {
+      createDirIfNotExists(parentDir);
+    }
+    fs.mkdirSync(dirPath);
+  }
+  return dirPath;
+}
 
 const validarParametrosFile = async (file = "") => {
   try {
+    const domain = config.apiRoute;
+    const currentPath = path.join(process.cwd(), "storage_listener", file);
     var uploadDir = path.join(process.cwd(), "storage");
-    const currentPath = path.join(
-      process.cwd(),
-      "storage_listener",
-      file
-    );
-    // "[sil]-[datacont]-[guias-firmadas_externo]-[archivo_ff.pdf]"
-    const filename = file.substring(0, file.lastIndexOf(".")) || file;
-    console.log('filename', filename)
-    const extension = file.split(".").pop();
-    console.log('extension', extension)
-    const [ app, empresa, carpeta, name ] = filename.split("-");
-    console.log('name', name)
-    return filename
+    const structure = file.split("#");
+    if (structure.length < 4) {
+      await writeLogError(
+        file,
+        "El archivo no tiene la estructura correcta: app#empresa#carpeta#nombre"
+      );
+      return
+    }
+    const [app, empresa, carpeta, name] = file.split("#");
 
-    // var destination = function (req, file, cb) {
-    //   var appDir = path.join(uploadDir, app);
-    //   var empresaDir = path.join(appDir, empresa);
-    //   var repoDir = path.join(empresaDir, carpeta);
+    if (!app) {
+      await writeLogError(file, "El archivo no tiene el nombre de la app");
+      return
+    }
 
-    //   try {
-    //     createDirIfNotExists(repoDir);
-    //     cb(null, repoDir);
-    //   } catch (err) {
-    //     console.error("Error creando directorios:", err);
-    //     cb(err);
-    //   }
-    // }
+    if (!empresa) {
+      await writeLogError(file, "El archivo no tiene el nombre de la empresa");
+      return
+    }
 
-    // var filename = function (req, file, cb) {
-    //   var uid = Date.now();
-    //   var fileName = req.query.nombre
-    //     ? `${uid}-${req.query.nombre}${path.extname(file.originalname)}`
-    //     : `${uid}-${file.originalname}`;
+    if (!carpeta) {
+      await writeLogError(file, "El archivo no tiene el nombre de la carpeta");
+      return
+    }
+    if (!name) {
+      await writeLogError(file, "El archivo no tiene el nombre del archivo");
+      return
+    }
 
-    //   req.filename = fileName;
-    //   cb(null, fileName);
-    // }
+    const appDir = path.join(uploadDir, app);
+    const empresaDir = path.join(appDir, empresa);
+    const repoDir = path.join(empresaDir, carpeta);
 
+    const pathFileSinNombre = createDirIfNotExists(repoDir);
+
+    const uid = Date.now();
+    const nombreSinExtension = name.substring(0, name.lastIndexOf(".")) || file;
+    const extension = path.extname(name)
+      ? path.extname(name).toLocaleLowerCase()
+      : "";
+    const fileName = `${uid}-${nombreSinExtension}${extension}`;
+    const pathFileConNombre = path.join(pathFileSinNombre, fileName);
+    const fileStat = await fsPromises.stat(path.resolve(currentPath));
+
+    await fsPromises.rename(currentPath, pathFileConNombre);
+    const ruta = `${domain}/${app}/${empresa}/${carpeta}/${fileName}`;
+
+    const obj = {
+      app,
+      usuario: "system",
+      ruta,
+      archivo: file,
+      archivoNuevo: fileName,
+      carpeta,
+      empresa,
+      peso: fileStat.size,
+      extension: path.extname(name)
+        ? path.extname(name).toLocaleLowerCase()
+        : "",
+      accion: "guardar nuevo archivo",
+    };
+
+    await sql.insert("auditoria_upload", "datacont", obj);
+    // await insertarLogUniversal(empresa, usuario, 'Guardar nuevo archivo', numeroCarga);
+
+    return fileName;
   } catch (error) {
     await writeLogError(file, error);
     throw error;
@@ -140,16 +181,17 @@ const validarParametrosFile = async (file = "") => {
 
 const writeLogError = async (file, message) => {
   try {
+    console.error("Error al procesar el archivo:", file, message);
     const destinationErrorDirectoryPath = path.join(
       process.cwd(),
-      "storage_invoices",
+      "storage",
       "errors"
     );
     const destinationErrorFilePath = path.join(
       process.cwd(),
-      "storage_invoices",
+      "storage",
       "errors",
-      "log_invoices_listener_errors.txt"
+      "log_storage_listener_errors.txt"
     );
     if (!fs.existsSync(destinationErrorDirectoryPath))
       fs.mkdirSync(destinationErrorDirectoryPath);
@@ -165,7 +207,7 @@ const writeLogError = async (file, message) => {
     await fsPromises.writeFile(destinationErrorFilePath, data);
     await fsPromises.rename(
       path.join(process.cwd(), "storage_listener", file),
-      `storage_invoices/errors/${file}`
+      `storage/errors/${file}`
     );
   } catch (error) {
     throw error;
@@ -175,4 +217,4 @@ const writeLogError = async (file, message) => {
 export default {
   registrar,
   processFiles,
-}
+};

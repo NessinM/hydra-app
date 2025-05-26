@@ -1,6 +1,6 @@
 import express from "express";
 var router = express.Router();
-import uploadModel from "../models/upload";
+import uploadModel from "../models/upload.js";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
