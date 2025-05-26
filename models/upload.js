@@ -58,7 +58,6 @@ export const registrar = async (req, res) => {
   }
 };
 
-
 // async function insertarLogUniversal(empresa, usuario, accion, numeroCarga) {
 //   const objAuditoriaUniversal = {
 //     accion,
@@ -94,102 +93,45 @@ const processFiles = (files) => {
 
 const validarParametrosFile = async (file = "") => {
   try {
+    var uploadDir = path.join(process.cwd(), "storage");
     const currentPath = path.join(
       process.cwd(),
       "storage_listener",
       file
     );
+    // "[sil]-[datacont]-[guias-firmadas_externo]-[archivo_ff.pdf]"
     const filename = file.substring(0, file.lastIndexOf(".")) || file;
+    console.log('filename', filename)
     const extension = file.split(".").pop();
-    const estructure_filename = filename.split("-");
+    console.log('extension', extension)
+    const [ app, empresa, carpeta, name ] = filename.split("-");
+    console.log('name', name)
+    return filename
 
-    if (extension !== "pdf" && extension !== "xml") {
-      await writeLogError(
-        file,
-        "La extencion del documento es diferente a PDF y a XML"
-      );
-    }
+    // var destination = function (req, file, cb) {
+    //   var appDir = path.join(uploadDir, app);
+    //   var empresaDir = path.join(appDir, empresa);
+    //   var repoDir = path.join(empresaDir, carpeta);
 
-    if (estructure_filename.length < 4) {
-      await writeLogError(file, "No cuenta con un nombre de archivo adecuado");
-    } else if (
-      !global.electronic_document_companies.filter(
-        (e) => e.value === estructure_filename[0]
-      ).length
-    ) {
-      await writeLogError(
-        file,
-        "El primer parametro del filename no es un RUC valido"
-      );
-    } else if (
-      !global.electronic_document_types.filter(
-        (e) => e.value === estructure_filename[1]
-      ).length
-    ) {
-      await writeLogError(
-        file,
-        "El segundo parametro del filename no es un tipo de documento valido"
-      );
-    } else {
-      const year = moment().format("YYYY");
-      const empresa =
-        global.electronic_document_companies.find(
-          (e) => e.value === estructure_filename[0]
-        )?.name || "";
-      const typeInvoice =
-        global.electronic_document_types.find(
-          (e) => e.value === estructure_filename[1]
-        )?.directory || "";
-      const filenameYear = `${year}-${filename}`.split("-").join("");
-      const pathInvoicePDFUpdate = `${process.env.API_CLIENT_ROUTE}/V01?file=INVP${filenameYear}`;
-      const pathInvoiceXMLUpdate = `${process.env.API_CLIENT_ROUTE}/V01?file=INVX${filenameYear}`;
-      const destinationYearDirectoryPath = path.join(
-        process.cwd(),
-        "storage_invoices",
-        year
-      );
-      const destinationEmpresaDirectoryPath = path.join(
-        process.cwd(),
-        "storage_invoices",
-        year,
-        empresa
-      );
-      const destinationPDFDirectoryPath = path.join(
-        process.cwd(),
-        "storage_invoices",
-        year,
-        empresa,
-        extension
-      );
-      const destinationInvoiceTypeDirectoryPath = path.join(
-        process.cwd(),
-        "storage_invoices",
-        year,
-        empresa,
-        extension,
-        typeInvoice
-      );
-      if (!fs.existsSync(destinationYearDirectoryPath))
-        fs.mkdirSync(destinationYearDirectoryPath);
-      if (!fs.existsSync(destinationEmpresaDirectoryPath))
-        fs.mkdirSync(destinationEmpresaDirectoryPath);
-      if (!fs.existsSync(destinationPDFDirectoryPath))
-        fs.mkdirSync(destinationPDFDirectoryPath);
-      if (!fs.existsSync(destinationInvoiceTypeDirectoryPath))
-        fs.mkdirSync(destinationInvoiceTypeDirectoryPath);
-      await api.updatePathInvoiceInSAP(
-        empresa,
-        estructure_filename[2],
-        estructure_filename[3],
-        estructure_filename[1],
-        pathInvoicePDFUpdate,
-        pathInvoiceXMLUpdate
-      );
-      await fsPromises.rename(
-        currentPath,
-        `${destinationInvoiceTypeDirectoryPath}/${file}`
-      );
-    }
+    //   try {
+    //     createDirIfNotExists(repoDir);
+    //     cb(null, repoDir);
+    //   } catch (err) {
+    //     console.error("Error creando directorios:", err);
+    //     cb(err);
+    //   }
+    // }
+
+    // var filename = function (req, file, cb) {
+    //   var uid = Date.now();
+    //   var fileName = req.query.nombre
+    //     ? `${uid}-${req.query.nombre}${path.extname(file.originalname)}`
+    //     : `${uid}-${file.originalname}`;
+
+    //   req.filename = fileName;
+    //   cb(null, fileName);
+    // }
+
   } catch (error) {
     await writeLogError(file, error);
     throw error;

@@ -93,8 +93,8 @@ async function update(table, empresa, key, obj, driver = DEFAULT_DRIVER) {
   }
 }
 
-async function builtGet(table, empresa, query, obj, driver = DEFAULT_DRIVER) {
-  const queryTime = `sql builtGet ${table} ${empresa}`;
+async function query(table, empresa, query, obj, driver = DEFAULT_DRIVER) {
+  const queryTime = `sql query ${table} ${empresa}`;
   const con = await util[driver](empresa);
 
   try {
@@ -115,5 +115,5 @@ export default {
   insert,
   getOne,
   update,
-  builtGet,
+  query,
 };
