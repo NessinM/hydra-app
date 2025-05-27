@@ -153,7 +153,7 @@ const validarParametrosFile = async (file = "") => {
 
     const obj = {
       app,
-      usuario: "system",
+      usuario: "listener-hydra",
       ruta,
       archivo: file,
       archivoNuevo: fileName,
