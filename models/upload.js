@@ -113,41 +113,38 @@ const validarParametrosFile = async (file = "") => {
         file,
         "El archivo no tiene la estructura correcta: app#empresa#carpeta#nombre"
       );
-      return
+      return;
     }
     const [app, empresa, carpeta, name] = file.split("#");
 
     if (!app) {
       await writeLogError(file, "El archivo no tiene el nombre de la app");
-      return
+      return;
     }
 
     if (!empresa) {
       await writeLogError(file, "El archivo no tiene el nombre de la empresa");
-      return
+      return;
     }
 
     if (!carpeta) {
       await writeLogError(file, "El archivo no tiene el nombre de la carpeta");
-      return
+      return;
     }
     if (!name) {
       await writeLogError(file, "El archivo no tiene el nombre del archivo");
-      return
+      return;
     }
 
     const appDir = path.join(uploadDir, app);
     const empresaDir = path.join(appDir, empresa);
     const repoDir = path.join(empresaDir, carpeta);
-
     const pathFileSinNombre = createDirIfNotExists(repoDir);
-
-    const uid = Date.now();
     const nombreSinExtension = name.substring(0, name.lastIndexOf(".")) || file;
     const extension = path.extname(name)
       ? path.extname(name).toLocaleLowerCase()
       : "";
-    const fileName = `${uid}-${nombreSinExtension}${extension}`;
+    const fileName = `${nombreSinExtension}${extension}`;
     const pathFileConNombre = path.join(pathFileSinNombre, fileName);
     const fileStat = await fsPromises.stat(path.resolve(currentPath));
 
@@ -163,9 +160,7 @@ const validarParametrosFile = async (file = "") => {
       carpeta,
       empresa,
       peso: fileStat.size,
-      extension: path.extname(name)
-        ? path.extname(name).toLocaleLowerCase()
-        : "",
+      extension: extension,
       accion: "guardar nuevo archivo",
     };
 
